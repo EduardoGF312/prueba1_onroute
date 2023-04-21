@@ -4,7 +4,7 @@
   "description": "El servidor para la aplicacion onRoute",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "mongoose": "^7.0.2",
+    "mongoose-sequence": "^5.3.1",
     "nodemon": "^2.0.21"
   }
 }

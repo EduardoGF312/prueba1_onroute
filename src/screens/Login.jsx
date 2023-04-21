@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext  } from "react";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import {
@@ -8,10 +8,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import {RutaContext} from "./RutaContext";
 
 const Login = ({ onLogin }) => {
-  const [ruta, setRuta] = useState("");
-  const [pass, setPass] = useState("");
+  const { ruta, setRuta } = useContext(RutaContext);
+  const [password, setPass] = useState("");
   const [fontsLoaded] = useFonts({
     ProductBold: require("../assets/fonts/ProductBold.ttf"),
     ProductRegular: require("../assets/fonts/ProductRegular.ttf"),
@@ -26,11 +27,11 @@ const Login = ({ onLogin }) => {
   };
 
   const handleSubmit = () => {
-    if (ruta === "" || pass === "") {
+    if (ruta === "" || password === "") {
       alert("Por favor, completa todos los campos");
     } else {
       axios
-        .post("http://192.168.1.3:5000/userLogin", { ruta, pass })
+        .post("https://onroute.fly.dev/userLogin", { ruta, password })
         .then((response) => {
           alert(response.data);
         
@@ -61,7 +62,7 @@ const Login = ({ onLogin }) => {
       {/* <Text style={[styles.label, styles.pass]}>CONTRASEÑA</Text> */}
       <TextInput
         placeholder="Contraseña"
-        value={pass}
+        value={password}
         onChangeText={handlePassChange}
         style={styles.input}
         secureTextEntry={true}

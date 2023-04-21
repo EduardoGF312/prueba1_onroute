@@ -1,53 +1,82 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Touchable,
   TouchableWithoutFeedback,
+  Button,
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { FontAwesome } from "@expo/vector-icons";
+import axios from "axios";
+import { RutaContext } from "./RutaContext";
 
-const scans = [
-    { id: 1, name: "Situacion A", date: "12 de marzo de 2023", info: "Información adicional sobre Reporte de situación" },
-    { id: 2, name: "Situacion B", date: "14 de marzo de 2023", info: "Información adicional sobre Reporte de situación" },
-    { id: 3, name: "Situacion C", date: "16 de marzo de 2023", info: "Información adicional sobre Reporte de situación" },
-    { id: 4, name: "Situacion D", date: "18 de marzo de 2023", info: "Información adicional sobre Reporte de situación" },
-    { id: 5, name: "Situacion E", date: "20 de marzo de 2023", info: "Información adicional sobre Reporte de situación" },
-    { id: 6, name: "Situacion F", date: "22 de marzo de 2023", info: "Información adicional sobre Reporte de situación" },
-  ];
-
-const ScanCard = ({ scan }) => {
+const ScanCard = ({ scan, navigation }) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => {
     setExpanded(!expanded);
   };
 
+  const handleEditPress = (event) => {
+    event.stopPropagation();
+    navigation.navigate("EditSituacion", { scan: scan });
+  };
+
   return (
-    <TouchableWithoutFeedback onPress={toggleExpand}>
-      <View style={[styles.scanCard, expanded && styles.expandedCard]}>
-        <Text style={styles.scanName}>{scan.name}</Text>
-        <Text style={styles.scanDate}>{scan.date}</Text>
-        {expanded && <Text style={styles.scanInfo}>{scan.info}</Text>}
-      </View>
-    </TouchableWithoutFeedback>
+    <View style={[styles.scanCard, expanded && styles.expandedCard]}>
+      <TouchableWithoutFeedback onPress={toggleExpand}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.scanName}>{scan.situacion}</Text>
+          <Text style={styles.scanDate}>{scan.fecha}</Text>
+          {expanded && <Text style={styles.scanInfo}>{scan.descripcion}</Text>}
+        </View>
+      </TouchableWithoutFeedback>
+      {expanded && (
+        <View style={styles.editIconContainer}>
+          <TouchableWithoutFeedback onPress={handleEditPress}>
+            <FontAwesome name="edit" size={25} color="#ef5b5b"/>
+          </TouchableWithoutFeedback>
+        </View>
+      )}
+    </View>
   );
 };
 
-const Escaneos = () => {
+const Escaneos = ({ navigation }) => {
+  const [situaciones, setSituaciones] = useState([]);
+  const { ruta, setRuta, newSituationAdded, setNewSituationAdded } = useContext(RutaContext);
+
+  useEffect(() => {
+    const obtenerSituaciones = async () => {
+      try {
+        const response = await axios.get(
+          `https://onroute.fly.dev/situaciones?ruta=${ruta}`
+        )
+        setSituaciones(response.data);
+      } catch (error) {
+        console.error("Error al obtener situaciones:", error);
+      }
+    }
+
+    obtenerSituaciones();
+    setNewSituationAdded(false);
+  }, [ruta, newSituationAdded]);
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Reportes Registrados</Text>
       <View style={styles.scanList}>
-        {scans.map((scan) => (
-          <ScanCard key={scan.id} scan={scan} />
+        {situaciones.map((scan, index) => (
+          <ScanCard key={index} scan={scan} navigation={navigation} />
         ))}
       </View>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -92,7 +121,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
     color: "#36311f",
-   paddingTop: 10,
+    paddingTop: 10,
   },
   scanDate: {
     fontSize: 16,
@@ -121,7 +150,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     color: "#003566",
- 
+
   },
   expandedDate: {
     fontSize: 20,
@@ -133,6 +162,13 @@ const styles = StyleSheet.create({
     color: "#333",
     marginTop: 10,
   },
+  // Agrega este nuevo estilo
+  editIconContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+
 });
 
 export default Escaneos;

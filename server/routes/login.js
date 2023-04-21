@@ -4,15 +4,15 @@ const mongoose = require("mongoose");
 
 const LoginSchema = new mongoose.Schema({
   ruta: String,
-  pass: String,
+  password: String,
 });
 
-const Login = mongoose.model("logins", LoginSchema);
+const Login = mongoose.model("trabajadores", LoginSchema);
 
 router.post("/userLogin", async (req, res) => {
-  const { ruta, pass } = req.body;
+  const { ruta, password } = req.body;
 
-  const userLogin = await Login.findOne({ ruta, pass });
+  const userLogin = await Login.findOne({ ruta, password });
 
   if (userLogin) {
     res.send("Bienvenido!");
